@@ -20,9 +20,9 @@ router.post('/login', login);
 router.get('/:id', getUserById);
 
 // Update Profile Picture (POST method)
-router.post('/:id/profile-pic', authenticateJWT, upload.single("profilePic"), updateProfilePic);
+router.post('/:id/upload-profile-pic', authenticateJWT, upload.single("profilePic"), updateProfilePic);
 
 // Delete Profile Picture (POST method)
-router.delete('/:id/delete-profile-pic', authenticateJWT, deleteProfilePic);
+router.delete('/:id/remove-profile-pic', authenticateJWT, deleteProfilePic);
 
 module.exports = router;

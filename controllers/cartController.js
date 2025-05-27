@@ -54,12 +54,13 @@ exports.getCartItems = async (req, res) => {
 
     try {
         const items = await cartModel.getCartItems(userId);
-        res.status(200).json({ cartItems: items });
+        res.status(200).json(items); // ✅ return array directly
     } catch (error) {
         console.error("Error fetching cart items:", error);
         res.status(500).json({ message: "Failed to fetch cart items", error: error.message });
     }
 };
+
 
 // Remove item from cart
 exports.removeCartItem = async (req, res) => {

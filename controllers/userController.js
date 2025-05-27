@@ -83,13 +83,19 @@ exports.getUserById = async (req, res) => {
 // Update profile picture
 exports.updateProfilePic = async (req, res) => {
     const userId = req.params.id;
-    const { profilePic } = req.body;
+    const profilePic = req.file?.buffer;;
 
     if (!profilePic) return res.status(400).json({ error: "profilePic is required" });
-
+    const base64Image = profilePic.toString("base64");
     try {
-        await updateProfilePic(userId, profilePic);
-        res.status(200).json({ message: "Profile picture updated" });
+        await updateProfilePic(userId, base64Image);
+        const message = "Profile picture updated successfully!"
+
+        res.status(200).json({
+            success: true,
+            message,
+            base64Image,
+        });
     } catch (err) {
         res.status(500).json({ error: "Failed to update profile picture" });
     }
