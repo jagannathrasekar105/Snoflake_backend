@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require("uuid");
 
 exports.saveOrder = (req, res) => {
     const {
-        user_id,
+
         name,
         mobile,
         address,
@@ -15,7 +15,7 @@ exports.saveOrder = (req, res) => {
         total_amount,
         items,
     } = req.body;
-
+    const user_id = req.user.id;
     if (
         !user_id ||
         !name ||
@@ -98,8 +98,7 @@ exports.saveOrder = (req, res) => {
 
 
 exports.getOrdersByUser = (req, res) => {
-    const userId = req.params.userId;
-
+    const userId = req.user.id;
     if (!userId) {
         return res.status(400).json({ error: "Missing userId parameter" });
     }

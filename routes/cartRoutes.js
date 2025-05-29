@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const authenticateJWT = require('../middlewares/authenticateJWT');
 const {
     addToCart,
     getCartItems,
@@ -9,15 +9,15 @@ const {
 } = require("../controllers/cartController");
 
 // POST /api/cart - Add item to cart
-router.post("/", addToCart);
+router.post("/", authenticateJWT, addToCart);
 
 // PUT /api/cart - Update cart item quantity
-router.put("/", updateCartItem);
+router.put("/", authenticateJWT, updateCartItem);
 
 // GET /api/cart/:userId - Get all cart items for a user
-router.get("/:userId", getCartItems);
+router.get("/:userId", authenticateJWT, getCartItems);
 
 // DELETE /api/cart/:userId/:productId - Remove item from cart
-router.delete("/:userId/:productId", removeCartItem);
+router.delete("/:userId/:productId", authenticateJWT, removeCartItem);
 
 module.exports = router;

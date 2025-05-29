@@ -20,8 +20,7 @@ const executeQuery = (sqlText, binds = []) => {
 // Get Categories and All Products
 exports.getProductCategoriesAndAllProducts = async (req, res) => {
     try {
-        // Snowflake does not support multiple statements in one execute call,
-        // so we run them separately:
+
 
         const categoriesSql = `
       SELECT DISTINCT c.id, c.name 

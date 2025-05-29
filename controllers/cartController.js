@@ -2,9 +2,10 @@ const cartModel = require("../models/cartModel");
 
 // Add item to cart
 exports.addToCart = async (req, res) => {
-    const { userId, productId, quantity } = req.body;
+    const userId = req.user.id; // Get userId from decoded token
+    const { productId, quantity } = req.body;
 
-    if (!userId || !productId || quantity == null) {
+    if (!productId || quantity == null) {
         return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -24,9 +25,10 @@ exports.addToCart = async (req, res) => {
 
 // Update cart item quantity
 exports.updateCartItem = async (req, res) => {
-    const { userId, productId, quantity } = req.body;
+    const userId = req.user.id;
+    const { productId, quantity } = req.body;
 
-    if (!userId || !productId || quantity == null) {
+    if (!productId || quantity == null) {
         return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -46,28 +48,24 @@ exports.updateCartItem = async (req, res) => {
 
 // Get cart items for a user
 exports.getCartItems = async (req, res) => {
-    const { userId } = req.params;
-
-    if (!userId) {
-        return res.status(400).json({ message: "Missing userId parameter" });
-    }
+    const userId = req.user.id;
 
     try {
         const items = await cartModel.getCartItems(userId);
-        res.status(200).json(items); // ✅ return array directly
+        res.status(200).json(items);
     } catch (error) {
         console.error("Error fetching cart items:", error);
         res.status(500).json({ message: "Failed to fetch cart items", error: error.message });
     }
 };
 
-
 // Remove item from cart
 exports.removeCartItem = async (req, res) => {
-    const { userId, productId } = req.params;
+    const userId = req.user.id;
+    const { productId } = req.params;
 
-    if (!userId || !productId) {
-        return res.status(400).json({ message: "Missing required parameters" });
+    if (!productId) {
+        return res.status(400).json({ message: "Missing productId parameter" });
     }
 
     try {

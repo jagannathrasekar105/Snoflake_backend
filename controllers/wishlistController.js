@@ -17,13 +17,14 @@ const executeQuery = (sqlText, binds = []) => {
 };
 
 exports.addToWishlist = async (req, res) => {
-    const { userId, productId } = req.body;
+    const user_id = req.user.id;
+    const { productId } = req.body;
 
     try {
         const checkSql = `
       SELECT * FROM wishlist WHERE user_id = ? AND product_id = ?
     `;
-        const existing = await executeQuery(checkSql, [userId, productId]);
+        const existing = await executeQuery(checkSql, [user_id, productId]);
 
         if (existing.length > 0) {
             return res.json({ success: false, message: "Already in wishlist" });
@@ -32,7 +33,7 @@ exports.addToWishlist = async (req, res) => {
         const insertSql = `
       INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)
     `;
-        await executeQuery(insertSql, [userId, productId]);
+        await executeQuery(insertSql, [user_id, productId]);
 
         res.json({ success: true, message: "Added to wishlist" });
     } catch (err) {
@@ -42,8 +43,7 @@ exports.addToWishlist = async (req, res) => {
 };
 
 exports.getWishlist = async (req, res) => {
-    const { userId } = req.params;
-
+    const user_id = req.user.id;
     try {
         const sql = `
       SELECT p.*
@@ -51,7 +51,7 @@ exports.getWishlist = async (req, res) => {
       JOIN products p ON w.product_id = p.id
       WHERE w.user_id = ?
     `;
-        const result = await executeQuery(sql, [userId]);
+        const result = await executeQuery(sql, [user_id]);
         res.json(result);
     } catch (err) {
         console.error("Error fetching wishlist:", err);
@@ -60,13 +60,15 @@ exports.getWishlist = async (req, res) => {
 };
 
 exports.removeFromWishlist = async (req, res) => {
-    const { userId, productId } = req.body;
+    const user_id = req.user.id;
+
+    const { productId } = req.body;
 
     try {
         const sql = `
       DELETE FROM wishlist WHERE user_id = ? AND product_id = ?
     `;
-        await executeQuery(sql, [userId, productId]);
+        await executeQuery(sql, [user_id, productId]);
         res.json({ success: true, message: "Removed from wishlist" });
     } catch (err) {
         console.error("Error removing from wishlist:", err);

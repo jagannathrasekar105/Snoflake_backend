@@ -8,7 +8,7 @@ const {
     deleteProfilePic,
 } = require("../models/userModel");
 
-const JWT_SECRET = "your_secret_key"; // Replace with environment variable in production
+const JWT_SECRET = process.env.JWT_SECRET; // Use env var in production
 
 // Register
 exports.register = async (req, res) => {
@@ -35,7 +35,7 @@ exports.register = async (req, res) => {
     }
 };
 
-// Login
+// ✅ Login (now sets token in cookie)
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -57,7 +57,25 @@ exports.login = async (req, res) => {
             expiresIn: "1d",
         });
 
-        res.json({ message: "Login successful", token, user });
+        // 🔐 Set token as HTTP-only cookie
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
+
+        res.status(200).json({
+            message: "Login successful",
+            user: {
+                ID: user.ID,
+                EMAIL: user.EMAIL,
+                FIRSTNAME: user.FIRSTNAME,
+                LASTNAME: user.LASTNAME,
+                USERNAME: user.USERNAME,
+                PROFILEPIC: user.PROFILEPIC || null,
+            },
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Login failed" });
@@ -83,17 +101,17 @@ exports.getUserById = async (req, res) => {
 // Update profile picture
 exports.updateProfilePic = async (req, res) => {
     const userId = req.params.id;
-    const profilePic = req.file?.buffer;;
+    const profilePic = req.file?.buffer;
 
     if (!profilePic) return res.status(400).json({ error: "profilePic is required" });
+
     const base64Image = profilePic.toString("base64");
+
     try {
         await updateProfilePic(userId, base64Image);
-        const message = "Profile picture updated successfully!"
-
         res.status(200).json({
             success: true,
-            message,
+            message: "Profile picture updated successfully!",
             base64Image,
         });
     } catch (err) {
@@ -112,3 +130,20 @@ exports.deleteProfilePic = async (req, res) => {
         res.status(500).json({ error: "Failed to delete profile picture" });
     }
 };
+
+
+
+
+exports.authentication = async (req, res) => {
+    const token = req.cookies.token; // your cookie name
+    if (!token) return res.status(401).json({ message: "Not authenticated" });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.id;
+        const user = await findUserById(userId);
+        res.json({ user });
+    } catch (err) {
+        res.status(401).json({ message: "Invalid token" });
+    }
+}
