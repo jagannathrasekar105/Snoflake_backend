@@ -74,6 +74,7 @@ exports.login = async (req, res) => {
                 LASTNAME: user.LASTNAME,
                 USERNAME: user.USERNAME,
                 PROFILEPIC: user.PROFILEPIC || null,
+                CREATED_AT: user.CREATED_AT
             },
         });
     } catch (err) {

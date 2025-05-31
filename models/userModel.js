@@ -38,7 +38,8 @@ const updateProfilePic = async (userId, profilePic) => {
 
 // Find user by ID
 const findUserById = async (id) => {
-    const results = await executeQuery("SELECT * FROM users WHERE ID = ?", [id]);
+    const results = await executeQuery("SELECT ID, FIRSTNAME, LASTNAME, EMAIL, USERNAME,PROFILEPIC,CREATED_AT FROM users WHERE ID = ?",
+        [id]);
     return results[0] || null;
 };
 
